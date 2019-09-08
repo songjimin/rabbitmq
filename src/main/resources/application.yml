@@ -1,4 +1,5 @@
 spring:
+  output.ansi.enabled: always
   rabbitmq:
     listener:
       default-requeue-rejected: false

@@ -27,7 +27,7 @@ public class Consumer {
 
     @RabbitListener(queues= RabbitMQConfig.DEAD_LETTER_QUEUE)
     public void onDLQReceiveMessage(SampleMessage message){
-        log.info("DLQ Receiver received message: {}", message);
+        log.error("DLQ Receiver received message: {}", message);
     }
 
 }

@@ -60,9 +60,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue deadLetterQueue() {
-        return QueueBuilder.durable(QUEUE_NAME)
-                .withArgument("x-dead-letter-exchange", "")
-                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_QUEUE)
+        return QueueBuilder.durable(DEAD_LETTER_QUEUE)
                 .build();
     }
 
