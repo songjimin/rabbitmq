@@ -20,3 +20,4 @@ https://kimseunghyun76.tistory.com/455
 
 dead-letter-queue
 https://zoltanaltfatter.com/2016/09/06/dead-letter-queue-configuration-rabbitmq/
+https://blog.leocat.kr/notes/2018/06/20/rabbitmq-dead-lettering-with-reject-or-nack

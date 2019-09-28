@@ -17,12 +17,12 @@ public class RabbitMQConfig {
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
 
-    public static final String QUEUE_NAME = "test-queue-1";
-    private static final String ROUTING_KEY = "test-routing-key-1";
-    private static final String EXCHANGE_NAME = "test-exchange-1";
+    public static final String QUEUE_NAME = "q";
+    private static final String ROUTING_KEY = "rk";
+    private static final String EXCHANGE_NAME = "ex";
 
 
-    public static final String DEAD_LETTER_QUEUE = "test-dead-letter-queue-1";
+    public static final String DEAD_LETTER_QUEUE_NAME = "dlq";
     /**
      * RabbitMQ Server와의 Connection을 생성하는 Factory 객체를 선언
      */
@@ -51,7 +51,7 @@ public class RabbitMQConfig {
 
         return QueueBuilder.durable(QUEUE_NAME)
                 .withArgument("x-dead-letter-exchange", "")
-                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_QUEUE)
+                .withArgument("x-dead-letter-routing-key", DEAD_LETTER_QUEUE_NAME)
                 .build();
     }
 
@@ -60,7 +60,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue deadLetterQueue() {
-        return QueueBuilder.durable(DEAD_LETTER_QUEUE)
+        return QueueBuilder.durable(DEAD_LETTER_QUEUE_NAME)
                 .build();
     }
 
@@ -91,6 +91,9 @@ public class RabbitMQConfig {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(converter);
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+//        factory.setConcurrency("4");
+//        factory.setPrefetchCount(20);
         return factory;
     }
 
@@ -98,4 +101,7 @@ public class RabbitMQConfig {
     public Jackson2JsonMessageConverter getMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
+
+
+
 }
