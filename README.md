@@ -21,3 +21,13 @@ https://kimseunghyun76.tistory.com/455
 dead-letter-queue
 https://zoltanaltfatter.com/2016/09/06/dead-letter-queue-configuration-rabbitmq/
 https://blog.leocat.kr/notes/2018/06/20/rabbitmq-dead-lettering-with-reject-or-nack
+
+retry template
+https://docs.spring.io/spring-amqp/docs/current/reference/html/#template-retry
+
+real retry arch
+https://engineering.nanit.com/rabbitmq-retries-the-full-story-ca4cc6c5b493
+
+
+try (not yet)
+https://gist.github.com/trippstowe/8b72c65e0651d7aef71549744b7e7ccd#file-springrabbitmqdeadletterconfiguration-java

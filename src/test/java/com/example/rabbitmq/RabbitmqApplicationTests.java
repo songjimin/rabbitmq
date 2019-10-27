@@ -31,7 +31,7 @@ public class RabbitmqApplicationTests {
 		IntStream.range(1, 2)
 				.parallel()
 				.forEach(val -> {
-					rabbitTemplate.convertAndSend("test-queue-1", new SampleMessage(String.valueOf(val), "imgUrl"));
+					rabbitTemplate.convertAndSend("rk", new SampleMessage(String.valueOf(val), "imgUrl"));
 				});
 		stopWatch.stop();
 		log.info(stopWatch.toString());

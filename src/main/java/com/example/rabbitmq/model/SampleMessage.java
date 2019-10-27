@@ -14,3 +14,10 @@ public class SampleMessage implements Serializable {
     private String imgUrl;
 
 }
+
+/*
+{
+"id":"id",
+"imgUrl":"imgUrl"
+}
+ */

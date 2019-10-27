@@ -10,7 +10,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @Component
 @Slf4j
@@ -24,11 +23,12 @@ public class Consumer {
         log.info("Receiver received message: {}", message);
 
 
-        if(Objects.nonNull(message)) {
-            channel.basicNack(tag, true, false);
-        }
+//        if(Objects.nonNull(message)) {
+//            channel.basicNack(tag, true, false);
+//        }
 
-        channel.basicAck(tag, false);
+        channel.basicNack(tag, true, false);
+//        channel.basicAck(tag, false);
 
     }
 

@@ -1,15 +1,21 @@
 package com.example.rabbitmq.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
 
 @Configuration
+@EnableRabbit
 public class RabbitMQConfig {
     private static final String RABBITMQ_HOST = "localhost";
     private static final int RABBITMQ_PORT = 5672;
@@ -18,12 +24,15 @@ public class RabbitMQConfig {
     private static final String PASSWORD = "password";
 
     public static final String QUEUE_NAME = "q";
-    private static final String ROUTING_KEY = "rk";
-    private static final String EXCHANGE_NAME = "ex";
+    public static final String ROUTING_KEY = "rk";
+    public static final String EXCHANGE_NAME = "ex";
 
 
     public static final String DEAD_LETTER_QUEUE_NAME = "dlq";
+
+
     /**
+     *
      * RabbitMQ Server와의 Connection을 생성하는 Factory 객체를 선언
      */
     @Bean
@@ -78,6 +87,18 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
     }
 
+    /**
+        RabbitMQ의 Publisher가 사용하는 Template
+     */
+    @Bean
+    public RabbitTemplate rabbitTemplate() {
+        RabbitTemplate template = new RabbitTemplate(getConnectionFactory());
+        template.setRoutingKey(ROUTING_KEY);
+        template.setExchange(EXCHANGE_NAME);
+        template.setMessageConverter(getMessageConverter());
+        template.setRetryTemplate(retryTemplate());
+        return template;
+    }
 
     /**
      * RabbitMQ에서 메시지를 수신할 Listener의 Factory를 선언하고 반환한다.
@@ -87,20 +108,56 @@ public class RabbitMQConfig {
      * @return 초기화된 Listener Factory 객체
      */
     @Bean("SampleContainerFactory")
-    SimpleRabbitListenerContainerFactory getSampleContainerFactory(ConnectionFactory connectionFactory, Jackson2JsonMessageConverter converter) {
+    SimpleRabbitListenerContainerFactory getSampleContainerFactory(ConnectionFactory connectionFactory,
+                                                                   Jackson2JsonMessageConverter converter) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(converter);
         factory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
-//        factory.setConcurrency("4");
-//        factory.setPrefetchCount(20);
+      //factory.setConcurrency("4");
+      //factory.setPrefetchCount(20);
         return factory;
     }
+
+
+
+
 
     @Bean
     public Jackson2JsonMessageConverter getMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
+
+
+    /**
+     * https://docs.spring.io/spring-amqp/docs/current/reference/html/#template-retry
+     * https://skibis.tistory.com/309
+     **/
+
+    public RetryTemplate retryTemplate() {
+        //create retryTemplate and attach the backoffPolicy
+        RetryTemplate retryTemplate = new RetryTemplate();
+        retryTemplate.setBackOffPolicy(exponentialBackOffPolicy());
+
+        //create a SimpleRetryPolicy and attach to the retryTemplate
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(5);
+        retryTemplate.setRetryPolicy(retryPolicy);
+
+        return retryTemplate;
+    }
+
+    public ExponentialBackOffPolicy exponentialBackOffPolicy(){
+        //setup ExponentialBackOffPolicy
+        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
+        backOffPolicy.setInitialInterval(1000);
+        backOffPolicy.setMultiplier(10.0);
+        backOffPolicy.setMaxInterval(3000);
+
+        return backOffPolicy;
+    }
+
 
 
 
